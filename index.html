@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .messages-list {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f9f9f9;
+        margin: 0;
+
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+
+        list-style: none;
+      }
+
+      .messages-list li {
+        padding: 10px;
+        background: #e3e3e3;
+        border-radius: 5px;
+        max-width: 60%;
+      }
+
+      .message-form {
+        padding: 20px;
+
+        display: grid;
+        grid-template-columns: 0.5fr 1fr 0.1fr;
+        gap: 20px;
+
+        box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .message-form input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+      }
+
+      .message-form button {
+        padding: 10px 20px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .message-form button:hover {
+        background: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <ul class="messages-list"></ul>
+      <form class="message-form">
+        <input id="name" placeholder="Enter your name..." />
+        <input id="message" required placeholder="Enter your message here..." />
+
+        <button>Send</button>
+      </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      const socket = io();
+
+      const form = document.querySelector('form');
+      const nameInput = document.querySelector('#name');
+      const messageInput = document.querySelector('#message');
+
+      const messagesList = document.querySelector('.messages-list');
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        socket.emit('new-message', {
+          from: nameInput.value || '<unknown>',
+          message: messageInput.value,
+        });
+
+        messageInput.value = '';
+      });
+
+      socket.on('new-message', ({ from, message }) => {
+        const item = document.createElement('li');
+        item.textContent = `${from}: ${message}`;
+
+        messagesList.appendChild(item);
+      });
+    </script>
+  </body>
+</html>
